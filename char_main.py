@@ -2,8 +2,10 @@ from time import sleep
 import pyautogui
 import tkinter as tk
 import random
+import winsound
 
 root = tk.Tk()
+root.wm_attributes("-topmost", 1)
 
 #screen resolution
 main_width = root.winfo_screenwidth()
@@ -212,9 +214,7 @@ class R2D2():
     def event(self):
         
         event_number = random.randint(0, 5)
-        #event_number = 3
-        
-        
+
         if event_number == 0:
             label.configure(image = stand)
             
@@ -252,8 +252,128 @@ class R2D2():
             
             self.update_pos(fly_time, 4)
             
+class RockSinger():
+    
+    def __init__(self, pos_x, pos_y, pos_in_space_x, pos_in_space_y):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.pos_in_space_x = width
+        self.pos_in_space_y = height
+        root.geometry(f'{self.pos_x}x{self.pos_y}+{width}+{height}')
         
+    def update_pos(self, do_time, direction):
+        
+        x_range = random.randint(200, 300) // (2 * do_time)
+        
+        if direction < 0 and self.pos_in_space_x < main_width and self.pos_in_space_x > 300:
+            
+            while do_time > 0:
+                
+                do_time -= 1
+                
+                self.pos_in_space_y -= 10
+                self.pos_in_space_x -= x_range
+                
+                root.geometry(f'{self.pos_x}x{self.pos_y}+{self.pos_in_space_x}+{self.pos_in_space_y}')
+                
+                root.update()
+                
+                sleep(0.1)
+                
+            while self.pos_in_space_y < height:
+                
+                self.pos_in_space_y += 10
+                self.pos_in_space_x -= x_range
+                
+                root.geometry(f'{self.pos_x}x{self.pos_y}+{self.pos_in_space_x}+{self.pos_in_space_y}')
+                
+                root.update()
+                
+                sleep(0.1)
+                
+        elif direction > 0 and self.pos_in_space_x < main_width - 300 and self.pos_in_space_x > 0:
+            
+            while do_time > 0:
+                    
+                do_time -= 1
+                
+                self.pos_in_space_y -= 10
+                self.pos_in_space_x += x_range
+                
+                root.geometry(f'{self.pos_x}x{self.pos_y}+{self.pos_in_space_x}+{self.pos_in_space_y}')
+                
+                root.update()
+                
+                sleep(0.1)
+                
+            while self.pos_in_space_y < height:
+                
+                self.pos_in_space_y += 10
+                self.pos_in_space_x += x_range
+                
+                root.geometry(f'{self.pos_x}x{self.pos_y}+{self.pos_in_space_x}+{self.pos_in_space_y}')
+                
+                root.update()
+                
+                sleep(0.1)
 
+    def singing_frequency(self, do_time, move, side):
+        
+        while do_time > 0:
+            
+            do_time -= 1
+
+            if move:
+                
+                if side == 1:
+                    label.configure(image = stand_right_1)  
+                else: 
+                    label.configure(image = stand_left_1)
+                root.update() 
+                sleep(0.13)  
+                move = 0
+            else:  
+                if side == 1: 
+                    label.configure(image = stand_right_2)  
+                else:     
+                    label.configure(image = stand_left_2)
+                root.update() 
+                sleep(0.13)   
+                move = 1      
+        
+    def event(self):
+        
+        event_number =  random.randint(0, 2)
+        
+        if event_number == 0:
+            do_time = random.randint(9, 10)
+            move = random.randint(0, 1)
+            
+            self.singing_frequency(do_time, move, 1)
+        elif event_number == 1:
+            do_time = random.randint(9, 10)
+            move = random.randint(0, 1)
+            
+            self.singing_frequency(do_time, move, 0)
+        elif event_number == 2:
+            
+            case = random.randint(0, 1)
+            
+            if case:
+            
+                label.configure(image = jump_right)
+                
+                jump_time = random.randint(3, 4)
+                
+                self.update_pos(jump_time, 1)
+                
+            else:
+                
+                label.configure(image = jump_left)
+            
+                jump_time = random.randint(3, 4)
+                
+                self.update_pos(jump_time, -1)
 
 option = -1
 start = 1
@@ -277,6 +397,10 @@ while 1:
         button_2 = tk.Button(root, text = "R2D2", padx = 20,
                         pady = 3, fg = "white", bg = "dark red", command = lambda : option_set(2))
         button_2.place(x = 395, y = 360)
+
+        button_3 = tk.Button(root, text = "Rock Singer", padx = 20,
+                        pady = 3, fg = "white", bg = "dark red", command = lambda : option_set(3))
+        button_3.place(x = 374, y = 400)
         
         while option < 0:
             
@@ -325,9 +449,21 @@ while 1:
                 left_fly = char_gif[4]
                 right_fly = char_gif[5]
                 
-
-            
-
+            elif option == 3:
+                
+                char_gif = [tk.PhotoImage(file = "rocker_singing.gif", format = 'gif -index %i' %(i))
+                    for i in range(6)]
+                
+                character = RockSinger(200, 200, width, height)
+                
+                stand_right_1 = char_gif[0]
+                stand_left_1 = char_gif[1]
+                jump_right = char_gif[2]
+                jump_left = char_gif[3]
+                stand_right_2 = char_gif[4]
+                stand_left_2 = char_gif[5]
+                
+                winsound.PlaySound("rocksinger_guitar.wav", winsound.SND_ASYNC | winsound.SND_ALIAS | winsound.SND_LOOP)
     
         character.event()
         
