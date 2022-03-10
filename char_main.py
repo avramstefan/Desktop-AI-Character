@@ -3,6 +3,7 @@ import pyautogui
 import tkinter as tk
 import random
 import winsound
+import win32api
 
 root = tk.Tk()
 root.wm_attributes("-topmost", 1)
@@ -340,9 +341,68 @@ class RockSinger():
                 root.update() 
                 sleep(0.13)   
                 move = 1      
+                
+    def mouse_condition(self):
+        
+        mouse_pos_x, mouse_pos_y = pyautogui.position()
+        
+        condition_a = False
+        condition_b = False
+        
+        if mouse_pos_x >= self.pos_in_space_x and mouse_pos_x <= self.pos_in_space_x + 200:
+            condition_a = True
+            
+        if  mouse_pos_y <= self.pos_in_space_y + 200 and mouse_pos_y >= self.pos_in_space_y:
+            condition_b = True
+            
+        if condition_a and condition_b:
+            return True
+        return False
+     
+    def move_the_char(self):
+         
+        mouse_pressed = win32api.GetKeyState(0x01) 
+        has_been_pressed = False
+
+        while mouse_pressed < 0:
+            
+            has_been_pressed = True
+            
+            mouse_pos_x, mouse_pos_y = pyautogui.position()
+            
+            self.pos_in_space_x = mouse_pos_x
+            self.pos_in_space_y = mouse_pos_y
+            
+            root.geometry(f'{self.pos_x}x{self.pos_y}+{self.pos_in_space_x}+{self.pos_in_space_y}')
+            
+            root.update()
+            
+            sleep(0.001)
+            
+            mouse_pressed = win32api.GetKeyState(0x01)
+            
+        if has_been_pressed == True:
+             
+            while self.pos_in_space_y + 60 < main_height - 200:
+                
+                self.pos_in_space_y += 60
+                
+                root.geometry(f'{self.pos_x}x{self.pos_y}+{self.pos_in_space_x}+{self.pos_in_space_y}')
+                
+                root.update()
+                sleep(0.05)
+            
+            self.pos_in_space_y = main_height - 200
+            
+            root.geometry(f'{self.pos_x}x{self.pos_y}+{self.pos_in_space_x}+{self.pos_in_space_y}')
+                
+            root.update()
         
     def event(self):
         
+        if self.mouse_condition():
+            self.move_the_char()
+                
         event_number =  random.randint(0, 2)
         
         if event_number == 0:
@@ -464,7 +524,7 @@ while 1:
                 stand_left_2 = char_gif[5]
                 
                 winsound.PlaySound("rocksinger_guitar.wav", winsound.SND_ASYNC | winsound.SND_ALIAS | winsound.SND_LOOP)
-    
+            
         character.event()
         
         root.update()
